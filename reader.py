@@ -1,7 +1,7 @@
 import serial
 import time
 
-# Configuración del puerto serial (ajusta el puerto COM y velocidad según tu configuración)
+# Configuración del puerto serial y la velocidad de baudios
 SERIAL_PORT = 'COM13'  
 BAUD_RATE = 9600
 

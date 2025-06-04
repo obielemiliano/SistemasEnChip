@@ -7,15 +7,13 @@ from threading import *
 import time
 import math
 
-customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
-customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("blue")
 
-##### Tkinter stuff ######
 root = customtkinter.CTk()
-root.title('Music Player')
-root.geometry('400x480')
+root.title('Tocayos DJ')
+root.geometry('500x400')
 pygame.mixer.init()
-##########################
 
 list_of_songs = ['music/City.wav']
 list_of_covers = ['img/city.jpg']
@@ -75,7 +73,7 @@ def skip_back():
     play_music()
 
 def volume(value):
-    #print(value) # If you care to see the volume value in the terminal, un-comment this :)
+    print(value)
     pygame.mixer.music.set_volume(value)
 
 
