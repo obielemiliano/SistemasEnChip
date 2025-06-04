@@ -2,37 +2,36 @@
 
 Este repositorio contiene el desarrollo de un proyecto académico para la materia de **Diseño de Sistemas en Chip**. El proyecto fue realizado en equipo por:
 
-* **Emiliano Camacho Ponce**
-* **Alfredo Alejandro Soto Herrera**
-* **Obiel Emiliano Rangel Moreno**
+* **Emiliano Camacho Ponce [GitHubEmiliano](https://github.com/Emiliano1410)** 
+* **Alfredo Alejandro Soto Herrera [GitHubAlex](https://github.com/AlejandroSH1)**
+* **Obiel Emiliano Rangel Moreno [GitHubObiel](https://github.com/obielemiliano)**
 
 ## Descripción del Proyecto
 
-El objetivo del proyecto es desarrollar un sistema embebido utilizando Python, que simula la funcionalidad de un sistema en chip. Se implementan diversas funcionalidades que permiten la interacción con el usuario, procesamiento de datos y gestión de tokens.
+El objetivo del proyecto es desarrollar un sistema embebido utilizando Python, que simula la funcionalidad de una Rocola. Se implementan diversas funcionalidades, entre ellas la que más se destaca es la reproducción de música a través de tarjetas RFID, las cuales permiten la interacción con el usuario. Asimismo, este proyecto cuenta con una interfaz gráfica donde los usuarios también pueden interactuar y una base de datos en la cual se registran las canciones que se han escuchado.
 
 ## Estructura del Repositorio
 
 A continuación, se describen los archivos principales del repositorio y su funcionalidad:
 
-* **`embed.py`**: Este archivo contiene la lógica principal del sistema embebido. Se encarga de inicializar y coordinar los diferentes módulos del proyecto.
+* **`interface.py`**: La interfaz del sistema. En esta, el usuario puede interactuar y ver algunos datos como nombre del artista o nombre de la canción.
 
-* **`interface.py`**: Define la interfaz de usuario del sistema. Proporciona las funciones necesarias para la interacción con el usuario, como la visualización de menús y la captura de entradas.
-
-* **`player.py`**: Implementa las funcionalidades relacionadas con la reproducción de medios. Permite la gestión y reproducción de archivos de audio o video dentro del sistema.
+* **`player.py`**: Es el archivo eje del repositorio. Implementa las funcionalidades relacionadas con la reproducción de medios. Permite la gestión y reproducción de  de audioa través de APIs con la cuenta de Spotify enlazada.
 
 * **`prueba.py`**: Archivo utilizado para realizar pruebas y validaciones de los diferentes módulos del sistema. Contiene casos de prueba que aseguran el correcto funcionamiento de las funcionalidades implementadas.
 
-* **`reader.py`**: Se encarga de la lectura y procesamiento de datos de entrada. Puede incluir la lectura de archivos, sensores u otras fuentes de datos necesarias para el sistema.
+* **`reader.py`**: Programa de prueba utilizado para leer el ID de cada una de las tarjetas a través del sensor NFC.
 
-* **`token.py`**: Gestiona la creación y validación de tokens dentro del sistema. Es fundamental para la autenticación y autorización de usuarios o procesos.
+* **`token.py`**: Gestiona la creación y validación de un token de Spotify. Es fundamental para la autenticación y autorización de usuarios o procesos.
 
 ## Requisitos
 
 * Python 3.3
-* Bibliotecas adicionales (Spotipy, SpotifyOAuth, Time y Serial)
+* Bibliotecas adicionales (Tkinter, FastAPI, Spotipy, SpotifyOAuth, Time y Serial)
 * Una Raspberry Pi
 * Sensor NFC (Nosotros usamos un Sensor Sparkfun NFC)
 * Tarjetas RFID 
+* Cuenta Premium en Spotify
 
 ## Instrucciones de Uso
 
@@ -55,7 +54,7 @@ A continuación, se describen los archivos principales del repositorio y su func
 3. Ejecutar el archivo principal:
 
    ```bash
-   python embed.py
+   python player.py
    ```
 
 
