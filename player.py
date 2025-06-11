@@ -1,3 +1,6 @@
+# Programa principal, se leen las tarjetas RFID y se controla la reproducción de Spotify
+# utilizando el token de acceso generado
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from time import sleep

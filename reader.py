@@ -1,3 +1,5 @@
+# Programa para leer tarjetas RFID utilizando un lector conectado por USB
+
 import serial
 import time
 

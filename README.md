@@ -18,7 +18,7 @@ A continuación, se describen los archivos principales del repositorio y su func
 
 * **`player.py`**: Es el archivo eje del repositorio. Implementa las funcionalidades relacionadas con la reproducción de medios. Permite la gestión y reproducción de  de audioa través de APIs con la cuenta de Spotify enlazada.
 
-* **`prueba.py`**: Archivo utilizado para realizar pruebas y validaciones de los diferentes módulos del sistema. Contiene casos de prueba que aseguran el correcto funcionamiento de las funcionalidades implementadas.
+* **`prueba.py`**: Archivo basado en el código abierto de Spotify para realizar peticiones y configurar la interfaz. No pertenece al proyecto, unicamente es una prueba para el desarrollo de la interfaz
 
 * **`reader.py`**: Programa de prueba utilizado para leer el ID de cada una de las tarjetas a través del sensor NFC.
 

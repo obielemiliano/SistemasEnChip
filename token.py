@@ -1,3 +1,5 @@
+# Programa para la generación de un token de acceso para la API de Spotify utilizando las credenciales del cliente
+
 from spotipy.oauth2 import SpotifyOAuth
 
 CLIENT_ID = '1804f7fd9cdc4d4fa06a0d976f3bf967'
