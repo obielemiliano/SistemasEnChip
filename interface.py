@@ -1,77 +1,130 @@
+# Código para la interfaz gráfica y almacenamiento de historial de reproducción de Spotify
+
+import colorsys
+from colorthief import ColorThief
+import io
 import tkinter
 import customtkinter
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from threading import Thread
 import time
-from tkinter.ttk import Progressbar
 from PIL import Image, ImageTk
 import requests
-import math
 import pygame
+import datetime
 
-DEVICE_ID = "1d1ca332f5804d3c751bff86f1cd6d103ce32111"
-
-# Configuración de apariencia
+# Configuración inicial
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")
 
-# Configuración de ventana
+# Crear ventana principal
 root = customtkinter.CTk()
 root.title('Tocayos DJ (Spotify)')
-root.geometry('600x500')
+root.geometry('750x650')
 
-# Spotify Auth
+# Configuración de Spotify
+DEVICE_ID = "1d1ca332f5804d3c751bff86f1cd6d103ce32111"  
+
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id="3e54ffed78bb40558f63615ed19c9a50",
     client_secret="eaac6f475cf24d9d8ab13aeb66c94edc",
     redirect_uri="http://127.0.0.1:8080",
-    scope="user-read-playback-state"
+    scope="user-read-playback-state,user-modify-playback-state"
 ))
 
-# Etiqueta para mostrar canción actual
-spotify_label = tkinter.Label(root, text="Cargando...", bg='#222222', fg='white', font=("Arial", 14))
-spotify_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
-
-album_frame = customtkinter.CTkFrame(root, width=250, height=250, fg_color="transparent")
-album_frame.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
-
-album_cover_label = customtkinter.CTkLabel(album_frame, text="")
-album_cover_label.pack()
-
 # Variable para compartir datos entre threads
-current_track_info = {"text": "Cargando..."}
+current_track_info = {
+    "text": "Cargando...",
+    "image_url": None,
+    "colors": None
+}
 
-def spotify_monitor():
-    while True:
-        try:
-            current = sp.current_playback()
-            if current and current['is_playing']:
-                song = current['item']['name']
-                artist = current['item']['artists'][0]['name']
-                current_track_info["text"] = f"🎧 {song} - {artist}"
-            else:
-                current_track_info["text"] = "⏸ No se está reproduciendo música"
-        except Exception as e:
-            current_track_info["text"] = f"⚠️ Error: {str(e)}"
+def get_dominant_color(image_url):
+    """Extrae el color predominante de la imagen del álbum"""
+    try:
+        response = requests.get(image_url)
+        img_data = io.BytesIO(response.content)
+        color_thief = ColorThief(img_data)
+        dominant_color = color_thief.get_color(quality=1)
+        return dominant_color
+    except:
+        return (40, 40, 40)  # Color gris oscuro por defecto
+
+def apply_dynamic_theme(dominant_color):
+    """Aplica un tema basado en el color predominante"""
+    try:
+        # Convertir RGB a HSL para ajustes
+        r, g, b = [x/255.0 for x in dominant_color]
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
         
-        time.sleep(3)
+        # Ajustar luminosidad para el fondo
+        bg_l = max(0.1, min(0.3, l * 0.7))
+        bg_r, bg_g, bg_b = colorsys.hls_to_rgb(h, bg_l, s)
+        bg_color = (int(bg_r*255), int(bg_g*255), int(bg_b*255))
+        
+        # Convertir a formato hexadecimal
+        bg_hex = '#%02x%02x%02x' % bg_color
+        
+        # Aplicar a la interfaz
+        root.configure(fg_color=bg_hex)
+        album_frame.configure(fg_color=bg_hex)
+        song_info.configure(fg_color=bg_hex)
+        controls_frame.configure(fg_color=bg_hex)
+        volume_frame.configure(fg_color=bg_hex)
+        
+        # Color de texto basado en luminosidad
+        text_color = 'white' if l < 0.5 else 'black'
+        song_info.configure(text_color=text_color)
+        
+    except Exception as e:
+        print(f"Error aplicando tema dinámico: {e}")
+        # Tema por defecto si hay error
+        default_theme()
 
-def update_spotify_label():
-    spotify_label.config(text=current_track_info["text"])
-    root.after(1000, update_spotify_label)  # Schedule the next update
+def default_theme():
+    """Establece el tema por defecto"""
+    root.configure(fg_color='#222222')
+    album_frame.configure(fg_color='#222222')
+    song_info.configure(fg_color='#222222', text_color='white')
+    controls_frame.configure(fg_color='#222222')
+    volume_frame.configure(fg_color='#222222')
 
-def progress():
-    a = pygame.mixer.Sound(f'{list_of_songs[n]}')
-    song_len = a.get_length() * 3
-    for i in range(0, math.ceil(song_len)):
-        time.sleep(.4)
-        progressbar.set(pygame.mixer.music.get_pos() / 1000000)
+# Contenedor principal para la imagen del álbum
+album_frame = customtkinter.CTkFrame(root, width=400, height=400, fg_color='#222222')
+album_frame.pack(pady=20)
 
-def threading():
-    t1 = Thread(target=progress)
-    t1.start()
+# Label para la portada del álbum
+album_cover = customtkinter.CTkLabel(album_frame, text="", width=350, height=350, fg_color='#222222')
+album_cover.pack()
 
+# Label para la información de la canción
+song_info = customtkinter.CTkLabel(
+    root, 
+    text="Cargando...", 
+    font=("Arial", 14, "bold"),
+    wraplength=400,
+    justify="center",
+    fg_color='#222222',
+    text_color='white'
+)
+song_info.pack(pady=10)
+
+# Barra de progreso
+progressbar = customtkinter.CTkProgressBar(
+    root, 
+    progress_color='#1DB954', 
+    width=400,
+    height=4,
+    fg_color='#333333'
+)
+progressbar.pack(pady=10)
+
+# Controles de reproducción
+controls_frame = customtkinter.CTkFrame(root, fg_color='#222222')
+controls_frame.pack(pady=15)
+
+# Funciones de control con device_id incluido
 def play_music():
     try:
         current = sp.current_playback()
@@ -100,58 +153,168 @@ def set_volume(value):
     except Exception as e:
         print(f"Error al ajustar volumen: {e}")
 
+# Botones
+skip_back_btn = customtkinter.CTkButton(
+    controls_frame, 
+    text="⏮", 
+    command=skip_back,
+    width=50,
+    fg_color='#333333',
+    hover_color='#555555'
+)
+skip_back_btn.pack(side="left", padx=10)
+
+play_btn = customtkinter.CTkButton(
+    controls_frame, 
+    text="⏯", 
+    command=play_music,
+    width=50,
+    fg_color='#333333',
+    hover_color='#555555'
+)
+play_btn.pack(side="left", padx=10)
+
+skip_forward_btn = customtkinter.CTkButton(
+    controls_frame, 
+    text="⏭", 
+    command=skip_forward,
+    width=50,
+    fg_color='#333333',
+    hover_color='#555555'
+)
+skip_forward_btn.pack(side="left", padx=10)
+
+# Control de volumen
+volume_frame = customtkinter.CTkFrame(root, fg_color='#222222')
+volume_frame.pack(pady=10)
+
+volume_label = customtkinter.CTkLabel(volume_frame, text="🔈", fg_color='#222222')
+volume_label.pack(side="left")
+
+volume_slider = customtkinter.CTkSlider(
+    volume_frame,
+    from_=0,
+    to=1,
+    command=set_volume,
+    width=200,
+    fg_color='#333333',
+    progress_color='#1DB954'
+)
+volume_slider.set(0.7)
+volume_slider.pack(side="left", padx=10)
+
+def format_duration_ms(milliseconds):
+    """Convierte milisegundos a formato minutos:segundos"""
+    seconds = int(milliseconds / 1000)
+    minutes = seconds // 60
+    seconds = seconds % 60
+    return f"{minutes}:{seconds:02d}"
+
+def save_playback_history(song, artist, album, duration_ms):
+    """Guarda el historial de reproducción en un archivo de texto"""
+    try:
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        duration_formatted = format_duration_ms(duration_ms)
+        
+        with open("historial.txt", "a", encoding="utf-8") as f:
+            f.write(f"Canción: {song}\n")
+            f.write(f"Artista: {artist}\n")
+            f.write(f"Álbum: {album}\n")
+            f.write(f"Duración: {duration_formatted}\n")
+            f.write(f"Fecha y Hora: {timestamp}\n")
+            f.write("-" * 40 + "\n")  # Separador entre entradas
+            
+    except Exception as e:
+        print(f"Error guardando historial: {e}")
+
+# Funciones de Spotify
+def spotify_monitor():
+    last_track_id = None  # Para rastrear cambios de canción
+    
+    while True:
+        try:
+            current = sp.current_playback()
+            if current and current['item'] is not None:
+                song = current['item']['name']
+                artist = current['item']['artists'][0]['name']
+                current_track_id = current['item']['id']
+                album = current['item']['album']['name'] if 'album' in current['item'] else "Desconocido"
+                duration_ms = current['item']['duration_ms'] if 'duration_ms' in current['item'] else 0
+                
+                # Verificar si es una canción nueva
+                if current_track_id != last_track_id:
+                    current_track_info["text"] = f"{song}\n{artist}\nÁlbum: {album}"
+                    save_playback_history(song, artist, album, duration_ms)  # Guardar en historial
+                    last_track_id = current_track_id
+
+                if 'album' in current['item'] and 'images' in current['item']['album']:
+                    image_url = current['item']['album']['images'][0]['url']
+                    if current_track_info.get("image_url") != image_url:
+                        current_track_info["image_url"] = image_url
+                        current_track_info["colors"] = get_dominant_color(image_url)
+                else:
+                    current_track_info["image_url"] = None
+                    current_track_info["colors"] = None
+            else:
+                current_track_info["text"] = "No se está reproduciendo música"
+                current_track_info["image_url"] = None
+                current_track_info["colors"] = None
+                last_track_id = None  # Resetear cuando no hay reproducción
+
+        except Exception as e:
+            current_track_info["text"] = f"Error: {str(e)}"
+            current_track_info["image_url"] = None
+            current_track_info["colors"] = None
+        
+        time.sleep(3)
+
 def update_ui():
     try:
+        song_info.configure(text=current_track_info["text"])
+        
+        if current_track_info["image_url"]:
+            response = requests.get(current_track_info["image_url"], stream=True)
+            image = Image.open(response.raw)
+            image = image.resize((350, 350), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            album_cover.configure(image=photo)
+            album_cover.image = photo
+            
+            if current_track_info["colors"]:
+                apply_dynamic_theme(current_track_info["colors"])
+        else:
+            album_cover.configure(image=None)
+            album_cover.image = None
+            default_theme()
+            
         current = sp.current_playback()
         if current and current['is_playing']:
-            # Update progress bar
             progress = current['progress_ms'] / current['item']['duration_ms']
             progressbar.set(progress)
+        else:
+            progressbar.set(0)
             
-            # Update album cover if needed
-            if 'album' in current['item'] and 'images' in current['item']['album']:
-                album_cover_url = current['item']['album']['images'][0]['url']
-                response = requests.get(album_cover_url, stream=True)
-                image = Image.open(response.raw)
-                image = image.resize((300, 300))
-                photo = ImageTk.PhotoImage(image)
-                
-                if hasattr(root, 'album_cover_label'):
-                    root.album_cover_label.configure(image=photo)
-                    root.album_cover_label.image = photo
-                else:
-                    root.album_cover_label = tkinter.Label(root, image=photo)
-                    root.album_cover_label.image = photo
-                    root.album_cover_label.place(relx=.19, rely=.06)
     except Exception as e:
-        print(f"Error updating UI: {e}")
+        print(f"Error actualizando UI: {e}")
+        default_theme()
     
     root.after(1000, update_ui)
 
-# Elementos de la interfaz
-progressbar = customtkinter.CTkProgressBar(master=root, progress_color='#32a85a', width=250)
-progressbar.place(relx=.5, rely=.85, anchor=tkinter.CENTER)
+# Instalar colorthief si no está instalado
+try:
+    from colorthief import ColorThief
+except:
+    import os
+    os.system('pip install colorthief')
+    from colorthief import ColorThief
 
-# All Buttons
-play_button = customtkinter.CTkButton(master=root, text='Play/Pause', command=play_music)
-play_button.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
-
-skip_f = customtkinter.CTkButton(master=root, text='Next', command=skip_forward, width=2)
-skip_f.place(relx=0.7, rely=0.7, anchor=tkinter.CENTER)
-
-skip_b = customtkinter.CTkButton(master=root, text='Previous', command=skip_back, width=2)
-skip_b.place(relx=0.3, rely=0.7, anchor=tkinter.CENTER)
-
-slider = customtkinter.CTkSlider(master=root, from_=0, to=1, command=set_volume, width=210)
-slider.place(relx=0.5, rely=0.78, anchor=tkinter.CENTER)
-
-# Iniciar hilo que monitorea Spotify
-t_spotify = Thread(target=spotify_monitor, daemon=True)
-t_spotify.start()
-
-# Start the UI update loop
-update_spotify_label()
+# Iniciar hilos
+Thread(target=spotify_monitor, daemon=True).start()
 update_ui()
 
-# Ejecutar la interfaz
+# Establecer tema inicial
+default_theme()
+
+# Ejecutar la aplicación
 root.mainloop()

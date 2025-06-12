@@ -27,11 +27,32 @@ A continuación, se describen los archivos principales del repositorio y su func
 ## Requisitos
 
 * Python 3.3
-* Bibliotecas adicionales (Tkinter, FastAPI, Spotipy, SpotifyOAuth, Time y Serial)
+* Bibliotecas adicionales 
 * Una Raspberry Pi
 * Sensor NFC (Nosotros usamos un Sensor Sparkfun NFC)
 * Tarjetas RFID 
 * Cuenta Premium en Spotify
+
+## Librerías utilizadas
+
+* spotipy
+* time
+* tkinter
+* customtkinter
+* serial 
+* io
+* spotipy.oauth
+* threading
+* Pillow
+* requests
+* colorsys
+* colorthief
+* datetime
+* pygame
+
+Para la instalación de alguna de estas, utilizar el siguiente comando:
+
+* pip install <<nombre de la libreria>>
 
 ## Instrucciones de Uso
 
@@ -61,7 +82,7 @@ A continuación, se describen los archivos principales del repositorio y su func
 
 ## Contribuciones
 
-Este proyecto fue desarrollado como parte de la evaluación de la materia de Diseño de Sistemas en Chip. Las contribuciones externas no son aceptadas en este momento.
+Este proyecto fue desarrollado como parte de la evaluación de la materia de Diseño de Sistemas en Chip. No ha existido contribución por parte de terceros para la elaboración de este proyecto
 
 ## Licencia
 
