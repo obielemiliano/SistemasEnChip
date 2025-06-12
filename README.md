@@ -50,9 +50,11 @@ A continuación, se describen los archivos principales del repositorio y su func
 * datetime
 * pygame
 
-Para la instalación de alguna de estas, utilizar el siguiente comando:
+* Para la instalación de alguna de estas, utilizar el siguiente comando:
 
-* pip install <"nombre de la libreria">
+   ```bash
+   pip install <"nombre de la libreria">
+   ```
 
 ## Instrucciones de Uso
 
