@@ -52,7 +52,7 @@ A continuación, se describen los archivos principales del repositorio y su func
 
 Para la instalación de alguna de estas, utilizar el siguiente comando:
 
-* pip install <<nombre de la libreria>>
+* pip install <"nombre de la libreria">
 
 ## Instrucciones de Uso
 
